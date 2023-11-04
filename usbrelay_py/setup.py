@@ -14,8 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from setuptools import setuptools, setup, Extension
-
+from setuptools import setup, find_packages, Extension
 module1 = Extension(
     'usbrelay_py',
     libraries= ['usbrelay'],
@@ -34,7 +33,7 @@ setup(
     license = 'GPL-2.0-or-later',
     ext_modules = [module1],
     package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    packages=find_packages(where="src"),
     # packages = ['usbrelay_py'],
 
     classifiers = [
@@ -47,6 +46,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
 
 )
