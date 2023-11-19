@@ -559,3 +559,11 @@ mosquitto_pub -h your_mqtt_broker -t cmnd/OMG12/1 -m ON
  
 ```
 Enjoy
+
+
+### FreeBSD
+
+Install following packages:
+- `os-generic-userland-devtools` for `libc_nonshared.a`
+- `hidapi`
+- `pkgconf` for pkg-config
