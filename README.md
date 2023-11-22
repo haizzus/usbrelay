@@ -1,17 +1,17 @@
 # USB Relay Driver For Linux
 
-
 ![alt text](usbrelay.jpg "USB Relay")
 
 A cheap USB relay available from Ebay with 1,2,4 or 8 relay output.
 The double throw relay ratings are 10A 250VAC each.
 
 The USB device is HID compatible and comes with Windows control software.
-This code can control the relay vi HIDAPI which is a cross platform library. 
+This code can control the relay vi HIDAPI which is a cross platform library.
 This code was tested under linux both on x86 and Raspberry Pi ARM.
 The program is command line only as it is likely to be used by shell scripts.
 
 The output of lsusb for the device is:
+
 ```
 Bus 001 Device 003: ID 16c0:05df Van Ooijen Technische Informatica HID device except mice, keyboards, and joysticks
 
@@ -76,16 +76,18 @@ Device Descriptor:
 Device Status:     0x0000
   (Bus Powered)
 ```
-___
+
+---
 
 ## HIDAPI
 
 http://www.signal11.us/oss/hidapi
 
-HIDAPI is a fairly recent addition to linux and is available as a package for Fedora 20 but not for Pidora (F18). 
+HIDAPI is a fairly recent addition to linux and is available as a package for Fedora 20 but not for Pidora (F18).
 The package was built for Pidora (Fedora 18) using the F20 hidapi source package.
 
 ### Installing Debian Packages:
+
 This code is a maintained package in Debian (and Raspian). Use normal apt-get commands:
 
 ```
@@ -93,6 +95,7 @@ $ sudo apt-get install usbrelay
 ```
 
 ### Installing Fedora Packages:
+
 The packages are available in Fedora36+
 
 ```
@@ -102,11 +105,13 @@ $ sudo dnf install usbrelay-common python3-usbrelay usbrelay-mqtt
 Other Linux platforms will need to build the source, see below
 
 ### Protocol:
+
 The relay modules does not set the USB serial number but has a unique serial when the HID device is queried, the current state of the relays is also sent with the serial.
 The HID serial is matched and the ON/OFF command is sent to the chosen relay.
 
 ### Building The Code:
-The usual make, make install dance assuming the hidapi and hidapi-devel packages have been installed. Note that there are two options for the hidapi library: hidapi-hidraw or hidapi-libusb. Different distributions have better results with one or the other. YMMV. 
+
+The usual make, make install dance assuming the hidapi and hidapi-devel packages have been installed. Note that there are two options for the hidapi library: hidapi-hidraw or hidapi-libusb. Different distributions have better results with one or the other. YMMV.
 
 ```
 $ sudo apt-get install libhidapi-dev libhidapi-hidraw0 git 
@@ -130,6 +135,7 @@ $ make HIDAPI=libusb
 ```
 
 ### Docker Build:
+
 You can also build using Docker. Assuming you have Docker installed (only tested with version 18), execute the build script:
 
 ```
@@ -139,9 +145,11 @@ $ ./build.sh
 The usbrelay binary, libusbrelay.so and libusbrelay_py.so libraries will be built in the root directory of the repo.
 
 ### Usage:
-The code needs to access the device. This can be achieved either by running the program with root privileges (so sudo is your friend) or by copying 
+
+The code needs to access the device. This can be achieved either by running the program with root privileges (so sudo is your friend) or by copying
 50-usbrelay.rules to /etc/udev/rules.d, note Debian derivatives have a group 'plugdev' designed for this function.
 Edit 50-usbrelay.rules and substitute GROUP="plugdev" for GROUP="usbrelay"
+
 ```
 $ sudo cp 50-usbrelay.rules /etc/udev/rules.d
 $ sudo udevadm control -R
@@ -150,10 +158,13 @@ $ sudo udevadm control -R
 Add users that need to operate the relays to the usbrelay group
 
 Fedora:
+
 ```
 sudo usermod -a -G usbrelay <user name>
 ```
+
 Debian/Ubuntu:
+
 ```
 sudo usermod -a -G plugdev <user name>
 ```
@@ -178,6 +189,7 @@ Report bugs to https://github.com/darrylb123/usbrelay/issues.
 ```
 
 Running the program without arguments will display each module that matches device 16c0:05df or 0519:2018. The program can be invoked with the debug (-d) or quiet (-q) flags. The debug information is sent to stderr while the state is sent to stdout for use in scripts. The only limit to the number of these relays that can be plugged in and operated at once is the number of USB ports. Using neither the -d or -q flags just prints the state of the relays to stdout.
+
 ```
 $ sudo usbrelay
 PSUIS_1=1
@@ -196,35 +208,46 @@ PSUIS_2=0
 $ sudo usbrelay -q (--quiet)
 $
 ```
+
 To get the relay state
+
 ```
 $ sudo usbrelay
 PSUIS_1=1
 PSUIS_2=0
 ```
+
 To use the state in a script:
+
 ```
 $ eval $(sudo usbrelay)
 $ echo $PSUIS_2
 0
 ```
+
 To set the relay state of 1 or more modules at once:
+
 ```
 $ sudo usbrelay PSUIS_2=0
 $ sudo usbrelay PSUIS_2=1 PSUIS_1=0
 $ sudo usbrelay PSUIS_2=0 PSUIS_1=1 0U70M_1=0 0U70M_2=1
 ```
+
 Operate relay 9 to set the state of all relays together
+
 ```
 $ sudo usbrelay PSUIS_9=0
 $ sudo usbrelay PSUIS_9=1 0U70M_9=1
 ```
+
 The path to a device can be used in lieu of the serial, this can be useful for devices with corrupted serials
 
 ```
 $ sudo usbrelay /dev/hidraw1_1=0
 ```
-Alternatively if using libusb instead of hidraw you may use the usb device path 
+
+Alternatively if using libusb instead of hidraw you may use the usb device path
+
 ```
 Device Found
   type: 0519 2018
@@ -239,11 +262,11 @@ Manufacturer: Ucreatefun.com
 
 $ sudo usbrelay 0001:0015:00_1=0
 ```
+
 Change the serial permanently
 
 Use the fictitious relay 0 to set the serial permanently. If you have duplicate serials, make sure only one is plugged in when you change it.
 Maximum of 5 character serial (A-Z0-9 only). It is probably sensible to change one module at a time to avoid serial collisions. If the serial contains characters that are not A-Z0-9 and therefore an illegal ID, you may also use the device path to set the serial as above
-
 
 ```
 $ sudo usbrelay
@@ -261,10 +284,12 @@ ZAQ12_1=0
 ZAQ12_2=0
 ```
 
-### Python Extension: 
+### Python Extension:
+
 This also optionally includes a python extension. In order to build the python extension, you must have the Python 3 development libraries installed. The docker build process will produce the python library as well.
 
 Debian:
+
 ```
 ##Install Python3 dev package
 # sudo apt install libpython3-dev python3-venv pip
@@ -272,6 +297,7 @@ Debian:
 ```
 
 Fedora:
+
 ```
 ##Install Python3 dev package
 # sudo dnf install python3-devel
@@ -279,6 +305,7 @@ Fedora:
 ```
 
 With the dependency installed, the library can be built and installed with:
+
 ```
 ##Build libusbrelay_py.so
 $ cd usbrelay_py
@@ -290,6 +317,7 @@ $ sudo make install
 Once installed, the library can be used by any python script, assuming it is running as a user with suitable permissions per the changes to udev above.
 
 The following is a test script included as tests/usbrelay_test.py, showing how to use the library:
+
 ```
 import usbrelay_py
 import time
@@ -309,7 +337,7 @@ for board in boards:
         result = usbrelay_py.board_control(board[0],relay,1)
         print("Result: ",result)
         relay += 1
-        
+      
     relay = 1
     while(relay < board[1]+1):
         result = usbrelay_py.board_control(board[0],relay,0)
@@ -318,9 +346,11 @@ for board in boards:
 ```
 
 Once the library is installed, you can run the test script in python as follows:
+
 ```
 $ python3 test.py
 ```
+
 It will turn on and then off every relay attached to every board on your system.
 
 ### Fine-grained UDEV permissions
@@ -340,12 +370,12 @@ achieved by the following rules:
     SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05df", ENV{ID_SERIAL}=="PSUIS", MODE="0600", OWNER="user1"
     SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05df", ENV{ID_SERIAL}=="0U70M", MODE="0600", OWNER="user2"
 
-
 ## Support for Ucreatefun USB Modules
+
 ![alt text](ucreatefun.jpg "USB Relay")
 
-
 A USB relay became available that is supported by the software but with severe limitations
+
 - Status of the relays is not available
 - There is no serial so there can only be one of these modules attached to a system, unless referred to by device path. The module has a USB serial number of A0001 on every module.
 - The number of relays is not available
@@ -354,19 +384,25 @@ The module has a USB device ID of 0519:2018.
 There are modules with 1,2,4,and 8 relays. The module accepts a request for relay 9 which turns on/off all relays.
 Operating the module works the same as for the DccTech modules except the serial used is A0001
 Running usbrelay without arguments prints all possible relays (8) to stdout.
+
 ```
 $ sudo usbrelay A0001_2=1 # Turns on relay 2
 $ sudo usbrelay /dev/hidraw4_1=1
 $ sudo usbrelay A0001_9=1 # turns on all relays
 ```
+
 ## Referencing devices by physical USB port
+
 Symbolic links can be used to devices to allow physical USB ports to be referenced. The following line in a /etc/udev/rules.d file will create a symbolic link with the name of the USB port:
+
 ```
 KERNEL=="hidraw*",KERNELS=="*-*", SYMLINK+="usbrelay%b"
 ```
+
 The default 50-usbrelay.rules udev file creates these links for UCREATEFUN relays.
 
 The following example has a ucreatefun usb relay plugged into a USB port and 2 dcttech relays plugged into a USB hub attached to another port:
+
 ```
 $ ls -l /dev/hidr*
 crw-------. 1 root root 243, 0 Mar  9 15:23 /dev/hidraw0
@@ -453,30 +489,39 @@ Serial: /dev/husbrelay3-9:1.0, Relay: 2 State: fd --- Found
 
 
 ```
+
 Any
 
 ### MQTT support
+
 MQTT support requires the successful installation of the python library described above. Check this first (with a module plugged in) by running:
+
 ```
 sudo python3 test.py
 ```
+
 MQTT support provides capability of using Home Assistant or nodered with usbrelay. The capability is made up of:
 
-- usbrelayd 
+- usbrelayd
 - usbrelay.service
 - usbrelayd.conf
+
 #### usbrelayd
+
 A python daemon using libusbrelay to connect to an MQTT server. When the daemon starts, it publishes the state of all usbrelay devices found and subscribes to command topics for each relay.
 To install:
 
 Debian
+
 ```
 sudo apt-get install python3-paho-mqtt
 sudo cp usbrelayd /usr/sbin
 sudo cp usbrelayd.conf /etc/usbrelayd.conf
 
 ```
+
 Fedora
+
 ```
 sudo useradd usbrelay
 sudo dnf install python3-paho-mqtt
@@ -485,20 +530,25 @@ sudo cp usbrelayd.conf /etc/usbrelayd.conf
 ```
 
 Modify /etc/usbrelayd.conf to suit your circumstances.
-#### usbrelay.service 
-A systemd unit for controlling and monitoring the usbrelayd daemon. The file comes configured for Fedora and needs to be modified for Debian. 
 
+#### usbrelay.service
+
+A systemd unit for controlling and monitoring the usbrelayd daemon. The file comes configured for Fedora and needs to be modified for Debian.
 
 Debian
 
 Edit usbrelayd.service and change
+
 ```
 SupplementaryGroups=usbrelay
 ```
+
 to
+
 ```
 SupplementaryGroups=plugdev
 ```
+
 To install:
 
 ```
@@ -507,26 +557,34 @@ sudo systemctl daemon-reload
 ```
 
 #### 50-usbrelay.rules
-A udev rule file that reacts and starts/stops the usbrelayd.service when a module is pluggedin or removed. The file should be installed with the initial installation. The file comes configured for Fedora and needs to be modified for Debian. 
+
+A udev rule file that reacts and starts/stops the usbrelayd.service when a module is pluggedin or removed. The file should be installed with the initial installation. The file comes configured for Fedora and needs to be modified for Debian.
 
 Debian
 
 Edit 50-usbrelay.rules and change
+
 ```
 GROUP="usbrelay"
 ```
-to 
+
+to
+
 ```
 GROUP="plugdev"
 ```
+
 To install:
+
 ```
 sudo cp 50-usbrelay.rules /etc/udev/rules.d
 sudo udevadm control -R
 ```
+
 #### Operation
 
 After installation and configuration confirm the correct operation.
+
 ```
 systemctl status usbrelayd
 usbrelayd.service - USB Relay MQTT service
@@ -547,23 +605,33 @@ Jun 24 15:23:02 xxx.local python3[1151364]: State:  stat/OMG12/2 OFF
 Jun 24 15:23:02 xxx.local python3[1151364]: Subscribed:  cmnd/OMG12/2
 
 ```
+
 MQTT Topics for controlling usbrelays
 
 - Current state: stat/SERIAL/Relay (eg stat/OMG12/1 )
 - Command: cmnd/SERIAL/Relay ON/OFF (eg cmnd/OMG12/2 )
- 
+
 Using mosquitto client tools
+
 ```
 mosquitto_sub -h your_mqtt_broker -t stat/OMG12/1
 mosquitto_pub -h your_mqtt_broker -t cmnd/OMG12/1 -m ON
  
 ```
-Enjoy
 
+Enjoy
 
 ### FreeBSD
 
 Install following packages:
+
 - `os-generic-userland-devtools` for `libc_nonshared.a`
 - `hidapi`
+- `argp`
 - `pkgconf` for pkg-config
+
+### NetBSD
+
+- `libhidapi`
+- `pkg-config`
+- `argp`
