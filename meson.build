@@ -15,9 +15,9 @@ cc = meson.get_compiler('c')
 run_command('sh', '-c', 'echo "#define GITVERSION \"42\"" > gitversion.h')
 
 # need libusb-hidapi
-hidapi_dep = dependency('hidapi', method : 'pkg-config', required : true)
+hidapi_dep = dependency('hidapi-libusb', method : 'pkg-config', required : true)
 
-hidapi_inc = include_directories('/usr/local/include/')
+hidapi_inc = include_directories('/usr/pkg/include/')
 
 libusbrelay = static_library('libusbrelay',
     sources : ['libusbrelay.c'],
@@ -26,7 +26,7 @@ libusbrelay = static_library('libusbrelay',
 
 
 #need to install argp-standalone
-argp_lib = cc.find_library('argp', dirs: ['/usr/local/lib'], required: true)
+argp_lib = cc.find_library('argp', dirs: ['/usr/pkg/lib'], required: true)
 
 executable('usbrelay',
     'usbrelay.c',
