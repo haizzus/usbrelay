@@ -561,9 +561,17 @@ mosquitto_pub -h your_mqtt_broker -t cmnd/OMG12/1 -m ON
 Enjoy
 
 
-### FreeBSD
+### GhostBSD 2023.10
 
 Install following packages:
 - `os-generic-userland-devtools` for `libc_nonshared.a`
 - `hidapi`
 - `pkgconf` for pkg-config
+- `argp-standalone`
+
+### FreeBSD 14
+
+Install following packages:
+- `hidapi`
+- `pkgconf` for pkg-config
+- `argp-standalone`
